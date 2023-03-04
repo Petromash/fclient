@@ -42,7 +42,22 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         maria_fclient
-
+        spdlog
+        mbedcrypto
         # Links the target library to the log library
         # included in the NDK.
-        ${log-lib})
+        ${log-lib} )
+
+add_library(spdlog STATIC IMPORTED)
+set_target_properties(spdlog PROPERTIES IMPORTED_LOCATION
+        /home/maria/libs/spdlog/build/x86_64/libspdlog.a)
+
+add_library(mbedcrypto SHARED IMPORTED)
+set_target_properties(mbedcrypto PROPERTIES IMPORTED_LOCATION
+        /home/maria/mariafclient/app/src/main/nativLibs/x86_64/libmbedcrypto.so)
+
+target_include_directories(maria_fclient PUBLIC
+        /home/maria/libs/spdlog/spdlog/include
+        /home/maria/libs/mbedtls/mbedtls/include
+        )
+
