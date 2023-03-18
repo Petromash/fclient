@@ -1,5 +1,4 @@
 package com.example.maria_fclient;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,7 +20,32 @@ import org.apache.commons.codec.binary.Hex;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+interface TransactionEvents {
+    String enterPin(int ptc, String amount);
+    void transactionResult(boolean result);
+}
+
+
+public class MainActivity extends AppCompatActivity implements TransactionEvents{
+    private String pin;
+
+    @Override
+    public String enterPin(int ptc, String amount) {
+        pin = new String();
+        Intent it = new Intent(MainActivity.this, PinpadActivity.class);
+        it.putExtra("ptc", ptc);
+        it.putExtra("amount", amount);
+        synchronized (MainActivity.this) {
+            activityResultLauncher.launch(it);
+            try {
+                MainActivity.this.wait();
+            } catch (Exception ex) {
+                //todo: log error
+            }
+        }
+        return pin;
+    }
+
 
     // Used to load the 'maria_fclient' library on application startup.
     static {
@@ -34,6 +58,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     private ActivityMainBinding binding;
+
+    @Override
+    public void transactionResult(boolean result) {
+        runOnUiThread(()-> {
+            Toast.makeText(MainActivity.this, result ? "ok" : "failed", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +104,12 @@ public class MainActivity extends AppCompatActivity {
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             Intent data = result.getData();
                             // обработка результата
-                            String pin = data.getStringExtra("pin");
-                            Toast.makeText(MainActivity.this, pin, Toast.LENGTH_SHORT).show();
+                            //String pin = data.getStringExtra("pin");
+                            //Toast.makeText(MainActivity.this, pin, Toast.LENGTH_SHORT).show();
+                            pin = data.getStringExtra("pin");
+                            synchronized (MainActivity.this) {
+                                MainActivity.this.notifyAll();
+                            }
                         }
                     }
                 });
@@ -80,14 +117,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void onButtonClick(View v)
     {
+        byte[] trd = stringToHex("9F0206000000000100");
+        transaction(trd);
+        /*
+        new Thread(()-> {
+            try {
+                byte[] trd = stringToHex("9F0206000000000100");
+                boolean ok = transaction(trd);
+                runOnUiThread(()-> {
+                    Toast.makeText(MainActivity.this, ok ? "ok" : "failed", Toast.LENGTH_SHORT).show();
+                });
+
+            } catch (Exception ex) {
+                // todo: log error
+            }
+        }).start();
        /* byte[] key = stringToHex("0123456789ABCDEF0123456789ABCDE0");
         byte[] enc = encrypt(key, stringToHex("000000000000000102"));
         byte[] dec = decrypt(key, enc);
         String s = new String(Hex.encodeHex(dec)).toUpperCase();
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();*/
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
         Intent it = new Intent(this, PinpadActivity.class);
         //startActivity(it);
-        activityResultLauncher.launch(it);
+        activityResultLauncher.launch(it);*/
     }
 
 
@@ -122,4 +174,7 @@ public class MainActivity extends AppCompatActivity {
     public static native byte[] randomBytes(int no);
     public static native byte[] encrypt(byte[] key, byte[] data);
     public static native byte[] decrypt(byte[] key, byte[] data);
+    public native boolean transaction(byte[] trd);
+
+
 }
