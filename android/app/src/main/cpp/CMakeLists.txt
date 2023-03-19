@@ -54,7 +54,7 @@ set_target_properties(spdlog PROPERTIES IMPORTED_LOCATION
 
 add_library(mbedcrypto SHARED IMPORTED)
 set_target_properties(mbedcrypto PROPERTIES IMPORTED_LOCATION
-        /home/maria/mariafclient/app/src/main/nativLibs/x86_64/libmbedcrypto.so)
+        /home/maria/mariafclient/android/app/src/main/nativLibs/x86_64/libmbedcrypto.so)
 
 target_include_directories(maria_fclient PUBLIC
         /home/maria/libs/spdlog/spdlog/include
