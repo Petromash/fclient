@@ -102,6 +102,9 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
         tv.setText(new String(data, StandardCharsets.UTF_8));
         tv.append("\n");
         tv.append(new String(decData, StandardCharsets.UTF_8));*/
+
+       // TextView tv = findViewById(R.id.sample_text);
+        // tv.setText(stringFromJNI());
         activityResultLauncher  = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback() {

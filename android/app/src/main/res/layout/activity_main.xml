@@ -7,6 +7,15 @@
     android:background="#A590A6FF"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/sample_text"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sample_button"
+        android:layout_height="wrap_content"/>
+
     <Button 
         android:id="@+id/sample_button"
         android:layout_width="wrap_content"
