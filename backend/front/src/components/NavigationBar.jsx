@@ -5,6 +5,8 @@ import {faHome, faUser} from '@fortawesome/free-solid-svg-icons'
 import {Link, useNavigate} from 'react-router-dom';
 import Utils from "../utils/Utils";
 import BackendService from "../services/BackendService";
+import {connect} from "react-redux";
+import {userActions} from "../utils/Rdx";
 
 class NavigationBarClass extends React.Component {
 
@@ -18,11 +20,14 @@ class NavigationBarClass extends React.Component {
         this.props.navigate("\home")
     }
 
+
     logout() {
-        BackendService.logout().then(() => {
-            Utils.removeUser();
-            this.goHome()
-        });
+        BackendService.logout()
+            .then(() => {
+                Utils.removeUser();
+                this.props.dispatch(userActions.logout())
+                this.props.navigate('Login');
+            })
     }
 
 
@@ -38,11 +43,11 @@ class NavigationBarClass extends React.Component {
                         <Nav.Link onClick={this.goHome}>Another Home</Nav.Link>
                         <Nav.Link onClick={() =>{ this.props.navigate("\home")}}>Yet Another Home</Nav.Link>
                     </Nav>
-                    <Navbar.Text>{uname}</Navbar.Text>
-                    { uname &&
+                    <Navbar.Text>{this.props.user && this.props.user.login}</Navbar.Text>
+                    { this.props.user &&
                         <Nav.Link onClick={this.logout}><FontAwesomeIcon icon={faUser} fixedWidth />{' '}Выход</Nav.Link>
                     }
-                    { !uname &&
+                    { !this.props.user &&
                         <Nav.Link as={Link} to="/login"><FontAwesomeIcon icon={faUser} fixedWidth />{' '}Вход</Nav.Link>
                     }
                 </Navbar.Collapse>
@@ -57,4 +62,10 @@ const NavigationBar = props => {
     return <NavigationBarClass navigate={navigate} {...props} />
 }
 
-export default  NavigationBar;
+const mapStateToProps = state => {
+    const { user } = state.authentication;
+    return { user };
+}
+
+export default  connect(mapStateToProps)(NavigationBar);
+

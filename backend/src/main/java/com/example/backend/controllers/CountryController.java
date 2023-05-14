@@ -1,4 +1,5 @@
 package com.example.backend.controllers;
+import com.example.backend.repositories.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,17 +8,15 @@ import com.example.backend.models.Country;
 import com.example.backend.repositories.CountryRepository;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
 public class CountryController {
     @Autowired
     CountryRepository countryRepository;
-
+    @Autowired
+    ArtistRepository artistRepository;
     @GetMapping("/countries")
     public List
     getAllCountries() {
