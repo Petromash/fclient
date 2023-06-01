@@ -1,6 +1,5 @@
 package com.example.backend.controllers;
 
-
 import com.example.backend.models.User;
 import com.example.backend.repositories.UserRepository;
 import com.example.backend.tools.Utils;
@@ -15,7 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-@CrossOrigin(origins = "http://localhost:3000")
+
+@CrossOrigin
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
@@ -39,16 +39,15 @@ public class LoginController {
                     u2.activity = LocalDateTime.now();
                     User u3 = userRepository.saveAndFlush(u2);
 
-                    Map<String, Object> resp = new HashMap<>();
-                    resp.put("user", u3);
-                    resp.put("token", token);
-                    return new ResponseEntity<Object>(resp, HttpStatus.OK);
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("user", u3);
+                    response.put("token", String.valueOf(u3.token));
+                    return ResponseEntity.ok(response);
                 }
             }
         }
         return new ResponseEntity<Object>(HttpStatus.UNAUTHORIZED);
     }
-
     @GetMapping("/logout")
     public ResponseEntity logout(@RequestHeader(value = "Authorization", required = false) String token) {
         if (token != null && !token.isEmpty()) {

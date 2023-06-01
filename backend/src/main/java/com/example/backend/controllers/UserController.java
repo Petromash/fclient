@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
