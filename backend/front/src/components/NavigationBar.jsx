@@ -45,7 +45,7 @@ class NavigationBarClass extends React.Component {
                         <Nav.Link onClick={this.goHome}>Another Home</Nav.Link>
                         <Nav.Link onClick={() =>{ this.props.navigate("\home")}}>Yet Another Home</Nav.Link>
                     </Nav>
-                    <Navbar.Text>{this.props.user && this.props.user.login}</Navbar.Text>
+                    <Nav.Link as={Link} to="/account">{this.props.user && this.props.user.login}</Nav.Link>
                     { this.props.user &&
                         <Nav.Link onClick={this.logout}><FontAwesomeIcon icon={faUser} fixedWidth />{' '}Выход</Nav.Link>
                     }

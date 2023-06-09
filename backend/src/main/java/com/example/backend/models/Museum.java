@@ -29,9 +29,9 @@ public class Museum {
     @Column(name = "location", nullable = false)
     public String location;
 
-    @JsonIgnore
-    @OneToMany
-    public List<Painting> paintings = new ArrayList<>();
+//    @JsonIgnore
+//    @OneToMany
+//    public List<Painting> paintings = new ArrayList<>();
 
     @JsonIgnore
     @ManyToMany

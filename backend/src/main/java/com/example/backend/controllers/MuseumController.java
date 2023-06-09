@@ -1,16 +1,18 @@
 package com.example.backend.controllers;
 
+import com.example.backend.models.Country;
 import com.example.backend.models.Museum;
-import com.example.backend.models.User;
 import com.example.backend.repositories.MuseumRepository;
-import com.example.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -20,9 +22,14 @@ public class MuseumController {
     MuseumRepository museumRepository;
 
     @GetMapping("/museums")
-    public List
-    getAllCountries() {
-        return museumRepository.findAll();
+    public Page<Museum> getAllCountries(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return museumRepository.findAll(PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name")));
+    }
+
+    @GetMapping("/museums/{id}")
+    public Optional<Museum>
+    getMuseum(@PathVariable(value = "id") Long museumId) {
+        return museumRepository.findById(museumId);
     }
 
     @PostMapping("/museums")
@@ -36,6 +43,28 @@ public class MuseumController {
             Map<String, String> map = new HashMap<>();
             map.put("error", error);
             return ResponseEntity.ok(map);
+        }
+    }
+
+    @PostMapping("/deletemuseums")
+    public ResponseEntity<HttpStatus> deleteMuseums(@RequestBody List<Museum> museums) {
+        museumRepository.deleteAll(museums);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/museums/{id}")
+    public ResponseEntity<Museum> updateMuseum(@PathVariable(value = "id") Long museumId,
+                                               @RequestBody Museum museum) {
+        Museum mus = null;
+        Optional<Museum> cc = museumRepository.findById(museumId);
+        if (cc.isPresent()) {
+            mus = cc.get();
+            mus.name = museum.name;
+            mus.location = museum.location;
+            museumRepository.save(mus);
+            return ResponseEntity.ok(mus);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "artist not found");
         }
     }
 }

@@ -2,9 +2,13 @@ package com.example.backend.controllers;
 
 import com.example.backend.models.Artist;
 import com.example.backend.models.Country;
+import com.example.backend.models.Museum;
 import com.example.backend.repositories.ArtistRepository;
 import com.example.backend.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +30,21 @@ public class ArtistController {
     CountryRepository countryRepository;
 
     @GetMapping("/artists")
-    public List
-    getAllCountries() {
-        return artistRepository.findAll();
+    public Page<Artist> getAllCountries(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return artistRepository.findAll(PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name")));
+    }
+
+    @GetMapping("/artists/{id}")
+    public Optional<Artist>
+    getMuseum(@PathVariable(value = "id") Long museumId) {
+        return artistRepository.findById(museumId);
     }
 
     @PostMapping("/artists")
     public ResponseEntity<Object> createArtist(@RequestBody Artist artist) throws Exception {
         try {
             Optional<Country>
-                    cc = countryRepository.findById(artist.country.id);
+                    cc = countryRepository.findByName(artist.country.name);
             if (cc.isPresent()) {
                 artist.country = cc.get();
             }
@@ -59,8 +68,13 @@ public class ArtistController {
         if (cc.isPresent()) {
             artist = cc.get();
             artist.name = artistDetails.name;
-            artist.country = artistDetails.country;
             artist.century = artistDetails.century;
+            Optional<Country> ссс = countryRepository.findByName(artistDetails.country.name);
+            if (ссс.isPresent()) {
+                artist.country = ссс.get();
+             }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "country not found. Please create county before");
+            }
             artistRepository.save(artist);
             return ResponseEntity.ok(artist);
         } else {
@@ -68,17 +82,9 @@ public class ArtistController {
         }
     }
 
-    @DeleteMapping("/artists/{id}")
-    public ResponseEntity<Object> deleteArtist(@PathVariable(value = "id") Long artistId) {
-        Optional<Artist>
-                artist = artistRepository.findById(artistId);
-        Map<String, Boolean> resp = new HashMap<>();
-        if (artist.isPresent()) {
-            artistRepository.delete(artist.get());
-            resp.put("deleted", Boolean.TRUE);
-        }
-        else
-            resp.put("deleted", Boolean.FALSE);
-        return ResponseEntity.ok(resp);
+    @PostMapping("/deleteartists")
+    public ResponseEntity<HttpStatus> deleteMuseums(@RequestBody List<Artist> artists) {
+        artistRepository.deleteAll(artists);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
